@@ -1,0 +1,32 @@
+{
+  "name": "talentum",
+  "version": "1.0.0",
+  "description": "Repository for talent discovery",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/uimarshall/talentum.git"
+  },
+  "keywords": [],
+  "author": "Marshall Akpan",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/uimarshall/talentum/issues"
+  },
+  "homepage": "https://github.com/uimarshall/talentum#readme",
+  "devDependencies": {
+    "@eslint/js": "^9.23.0",
+    "@typescript-eslint/eslint-plugin": "^8.29.0",
+    "@typescript-eslint/parser": "^8.29.0",
+    "eslint": "^9.23.0",
+    "eslint-config-prettier": "^10.1.1",
+    "globals": "^16.0.0",
+    "prettier": "^3.5.3",
+    "typescript": "^5.8.2",
+    "typescript-eslint": "^8.29.0"
+  }
+}
