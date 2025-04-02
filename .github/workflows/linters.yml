@@ -1,0 +1,45 @@
+# name: Lint
+
+# on:
+#   push:
+#     branches:
+#       - main
+#   pull_request:
+# env:
+#   FORCE_COLOR: 1
+# jobs:
+#   eslint:
+#     name: Eslint
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v3
+#       - uses: ./.github/actions/prepare
+#       - run: npx eslint .
+#       - run: npx eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0
+
+name: Lint
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  FORCE_COLOR: 1
+
+jobs:
+  eslint:
+    name: Eslint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      # Run ESLint in the root folder
+      - name: Run ESLint in root folder
+        run: npx eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0
+
+      # Run ESLint in the client folder
+      - name: Run ESLint in client folder
+        working-directory: ./client
+        run: npx eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0
