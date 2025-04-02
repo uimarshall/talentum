@@ -4,6 +4,17 @@
   "description": "Repository for talent discovery",
   "main": "index.js",
   "scripts": {
+    "build": "rimraf dist && npx tsc",
+    "prestart": "npm run build",
+    "start": "node dist/backend/src/index.js",
+    "server": "nodemon dist/backend/src/index.js",
+    "server:ts": "SET NODE_ENV=DEVELOPMENT& npx nodemon backend/src/index.ts",
+    "predev": "npm run build",
+    "dev": "SET NODE_ENV=DEVELOPMENT& concurrently \"npx tsc -w\" \"npm run server\"",
+    "prod": "SET NODE_ENV=PRODUCTION& concurrently \"npx tsc -w\" \"npm run server\"",
+    "lint": "npx eslint .",
+    "format": "prettier --write .",
+    "lint:fix": "npx eslint --fix .",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -13,7 +24,6 @@
   "keywords": [],
   "author": "Marshall Akpan",
   "license": "ISC",
-  "type": "module",
   "bugs": {
     "url": "https://github.com/uimarshall/talentum/issues"
   },
@@ -23,11 +33,15 @@
     "@types/cookie-parser": "^1.4.8",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.1",
+    "@types/node": "^22.14.0",
     "@typescript-eslint/eslint-plugin": "^8.29.0",
     "@typescript-eslint/parser": "^8.29.0",
+    "concurrently": "^9.1.2",
     "eslint": "^9.23.0",
     "eslint-config-prettier": "^10.1.1",
+    "eslint-plugin-prettier": "^5.2.6",
     "globals": "^16.0.0",
+    "nodemon": "^3.1.9",
     "prettier": "^3.5.3",
     "typescript": "^5.8.2",
     "typescript-eslint": "^8.29.0"
@@ -37,6 +51,7 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
-    "helmet": "^8.1.0"
+    "helmet": "^8.1.0",
+    "rimraf": "^6.0.1"
   }
 }

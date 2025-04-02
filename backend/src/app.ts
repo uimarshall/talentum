@@ -1,4 +1,4 @@
-import express, { type Express, type Request, type Response } from 'express';
+import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -10,7 +10,7 @@ import cookieParser from 'cookie-parser';
 // Load the environment variables
 dotenv.config({ path: 'backend/src/config/.env' });
 
-const app: Express = express();
+const app = express();
 
 // Middleware
 app.use(helmet());
@@ -24,13 +24,13 @@ app.use(cors()); // Make sure you Enable CORS correctly, or you will get CORS er
 
 // Custom Error Middleware to handle error
 
-app.get('/', (req: Request, res: Response) => {
-  res.send('Express + TypeScript Configurations + Linting + found solution, better');
+app.get('/', (req, res) => {
+  res.send('we are in home page, better');
 });
-app.get('/greet', (req: Request, res: Response) => {
+app.get('/greet', (req, res) => {
   res.send('Hello Guys');
 });
-app.get('/time', (req: Request, res: Response) => {
+app.get('/time', (req, res) => {
   res.json({ time: new Date().toISOString() });
 });
 

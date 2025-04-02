@@ -1,8 +1,8 @@
 import { defineConfig } from 'eslint/config';
 import globals from 'globals';
 import js from '@eslint/js';
-import tseslint from 'typescript-eslint';
-import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import tseslint from '@typescript-eslint/eslint-plugin';
+// import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
 
 export default defineConfig([
   { languageOptions: { globals: globals.browser } },
@@ -20,10 +20,10 @@ export default defineConfig([
   },
   {
     files: ['**/*.{js,mjs,cjs,ts}'],
-    plugins: { js, eslintPluginPrettierRecommended },
+    plugins: { js, '@typescript-eslint': tseslint },
     extends: ['js/recommended'],
   },
-  tseslint.configs.recommended,
+
   {
     ignores: ['.node_modules/*', 'dist/', 'build/', 'coverage/'],
   },
