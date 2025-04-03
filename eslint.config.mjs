@@ -1,7 +1,8 @@
 import { defineConfig } from 'eslint/config';
 import globals from 'globals';
-import js from '@eslint/js';
-import tseslint from '@typescript-eslint/eslint-plugin';
+import eslint from '@eslint/js';
+// import tseslint from '@typescript-eslint/eslint-plugin';
+import tseslint from 'typescript-eslint';
 import tsParser from '@typescript-eslint/parser';
 import prettier from 'eslint-plugin-prettier';
 
@@ -11,7 +12,7 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
-    plugins: { js },
+    plugins: { eslint },
     extends: ['eslint:recommended'],
     rules: {
       eqeqeq: 'error',
@@ -25,7 +26,6 @@ export default defineConfig([
       parser: tsParser,
       globals: globals.browser,
     },
-    plugins: { '@typescript-eslint': tseslint },
     extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'],
     rules: {
       '@typescript-eslint/no-unused-vars': 'error',
