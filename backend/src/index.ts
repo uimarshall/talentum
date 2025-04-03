@@ -1,9 +1,10 @@
 import app from './app';
+import { config } from './config/app.config';
+import connectDb from './database/database';
 
-// const port = process.env.PORT ?? 5000;
+// Connect database
 
-const port = process.env.PORT ?? 5000;
-
-app.listen(port, () => {
-  console.log(`[server]: Server is running at http://localhost:${port} in ${process.env.NODE_ENV} mode`);
+connectDb();
+app.listen(config.PORT, () => {
+  console.log(`[server]: Server is running at http://localhost:${config.PORT} in ${config.NODE_ENV} mode`);
 });
