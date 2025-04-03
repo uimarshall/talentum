@@ -2,29 +2,45 @@ import { defineConfig } from 'eslint/config';
 import globals from 'globals';
 import js from '@eslint/js';
 import tseslint from '@typescript-eslint/eslint-plugin';
-// import eslintPluginPrettierRecommended from 'eslint-plugin-prettier/recommended';
+import tsParser from '@typescript-eslint/parser';
+import prettier from 'eslint-plugin-prettier';
 
 export default defineConfig([
-  { languageOptions: { globals: globals.browser } },
   {
+    files: ['**/*.{js,mjs,cjs}'],
+    languageOptions: {
+      globals: globals.browser,
+    },
+    plugins: { js },
+    extends: ['eslint:recommended'],
     rules: {
-      eqeqeq: 'off',
+      eqeqeq: 'error',
       'no-unused-vars': 'error',
       'prefer-const': ['error', { ignoreReadBeforeAssign: true }],
     },
   },
-  { files: ['**/*.{js,mjs,cjs,ts}'] },
   {
-    files: ['**/*.{js,mjs,cjs,ts}'],
-    languageOptions: { globals: globals.browser },
+    files: ['**/*.{ts,tsx}'],
+    languageOptions: {
+      parser: tsParser,
+      globals: globals.browser,
+    },
+    plugins: { '@typescript-eslint': tseslint },
+    extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'],
+    rules: {
+      '@typescript-eslint/no-unused-vars': 'error',
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/no-explicit-any': 'warn',
+    },
   },
   {
-    files: ['**/*.{js,mjs,cjs,ts}'],
-    plugins: { js, '@typescript-eslint': tseslint },
-    extends: ['js/recommended'],
+    files: ['**/*.{js,mjs,cjs,ts,tsx}'],
+    plugins: { prettier },
+    rules: {
+      'prettier/prettier': 'error',
+    },
   },
-
   {
-    ignores: ['.node_modules/*', 'dist/', 'build/', 'coverage/'],
+    ignores: ['node_modules/', 'dist/', 'build/', 'coverage/'],
   },
 ]);
