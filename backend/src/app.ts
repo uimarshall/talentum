@@ -18,14 +18,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
-app.use(cors()); // Make sure you Enable CORS correctly, or you will get CORS errors.
+app.use(cors());
 
 // Route middleware
 
 // Custom Error Middleware to handle error
 
 app.get('/', (req, res) => {
-  res.send('we are in home page, better');
+  res.send('Holla World!');
 });
 app.get('/greet', (req, res) => {
   res.send('Hello Guys');
