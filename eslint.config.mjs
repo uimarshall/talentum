@@ -3,7 +3,7 @@ import globals from 'globals';
 import eslint from '@eslint/js';
 // import tseslint from '@typescript-eslint/eslint-plugin';
 import tseslint from 'typescript-eslint';
-import tsParser from '@typescript-eslint/parser';
+
 import prettier from 'eslint-plugin-prettier';
 
 export default defineConfig([
@@ -23,7 +23,7 @@ export default defineConfig([
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
-      parser: tsParser,
+      tseslint: tseslint,
       globals: globals.browser,
     },
     extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'],
