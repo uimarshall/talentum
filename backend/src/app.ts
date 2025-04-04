@@ -1,9 +1,13 @@
-import express from 'express';
+import express, { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
 import cookieParser from 'cookie-parser';
+import { errorHandler } from './middlewares/errorHandler';
+import { BadRequestException } from './shared/utils/catchErrors';
+import { ErrorCode } from './shared/enums/errorCode.enum';
+import { asyncErrorHandler } from './middlewares/asyncErrorHandler';
 
 // import env from './utils/validateEnv';
 
@@ -23,11 +27,13 @@ app.use(cors());
 // Route middleware
 
 // Custom Error Middleware to handle error
-
+app.use(errorHandler);
 app.get('/', (req, res) => {
   res.send('Holla World!');
 });
-app.get('/greet', (req, res) => {
+app.get('/greet', (req: Request, res: Response, next: NextFunction) => {
+  // Simulate an async operation
+  throw new BadRequestException('Bad requset!', ErrorCode.RESOURCE_NOT_FOUND);
   res.send('Hello Guys');
 });
 app.get('/time', (req, res) => {
