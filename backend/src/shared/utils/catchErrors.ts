@@ -26,7 +26,7 @@ export class ForbiddenException extends AppErrorHandler {
 }
 export class BadRequestException extends AppErrorHandler {
   constructor(message = 'Bad Request', errorCode?: ErrorCode) {
-    super(message, HTTPSTATUS.BAD_REQUEST, errorCode || ErrorCode.VALIDATION_ERROR);
+    super(message, HTTPSTATUS.BAD_REQUEST, errorCode || ErrorCode.BAD_REQUEST);
   }
 }
 export class ConflictException extends AppErrorHandler {

@@ -1,15 +1,17 @@
-name: Format
+name: Lint
 
 on:
   push:
     branches:
       - main
   pull_request:
-
+env:
+  FORCE_COLOR: 1
 jobs:
-  format:
+  eslint:
+    name: Eslint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - uses: ./.github/actions/prepare
-      - run: npm run format --list-different
+      - run: npx eslint .

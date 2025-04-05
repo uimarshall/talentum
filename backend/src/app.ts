@@ -8,6 +8,12 @@ import { errorHandler } from './middlewares/errorHandler';
 import { BadRequestException } from './shared/utils/catchErrors';
 import { ErrorCode } from './shared/enums/errorCode.enum';
 import { asyncErrorHandler } from './middlewares/asyncErrorHandler';
+import { config } from './config/app.config';
+import authRoutes from './modules/auth/auth.routes';
+const BASE_PATH = config.BASE_PATH;
+console.log('====================================');
+console.log('BASE_PATH', BASE_PATH);
+console.log('====================================');
 
 // import env from './utils/validateEnv';
 
@@ -25,6 +31,7 @@ app.use(cookieParser());
 app.use(cors());
 
 // Route middleware
+app.use(`${BASE_PATH}/auth`, authRoutes);
 
 // Custom Error Middleware to handle error
 app.use(errorHandler);

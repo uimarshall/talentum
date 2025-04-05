@@ -6,8 +6,6 @@ runs:
   steps:
     - uses: actions/setup-node@v3
       with:
-        node-version: '18.x'
-    - run: |
-        npm i string-strip-html
-        npm install
+        node-version: '16.x'
+    - run: npm install
       shell: bash
