@@ -4,6 +4,7 @@ import { asyncErrorHandler } from '../../middlewares/asyncErrorHandler';
 import { AuthService } from './auth.service';
 import { HTTPSTATUS } from '../../config/http.config';
 import { loginSchema, registerSchema } from '../../shared/validators/auth.validator';
+import { setAuthenticationCookies } from '../../shared/utils/cookie';
 
 export class AuthController {
   private authService: AuthService;
@@ -37,9 +38,17 @@ export class AuthController {
     // const ipAddress = req.ip;
     const body = loginSchema.parse({ ...req.body, userAgent }); // Validate the request body against the schema.
     const { user, accessToken, refreshToken, mfaRequired } = await this.authService.login(body); // Call the login method of the AuthService with the validated body.
-    return res.status(HTTPSTATUS.OK).json({
-      message: 'User logged in successfully',
-      data: { user, mfaRequired }, // Return the user data and token in the response.
-    });
+
+    return setAuthenticationCookies({
+      res,
+      accessToken,
+      refreshToken,
+    })
+      .status(HTTPSTATUS.OK)
+      .json({
+        message: 'User logged in successfully',
+        user,
+        mfaRequired,
+      });
   });
 }
