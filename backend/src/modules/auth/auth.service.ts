@@ -73,7 +73,7 @@ export class AuthService {
     const sessionId = String(session._id);
     const accessToken = generateAccessToken(userId, sessionId);
 
-    console.log('Access Token:', accessToken);
+    // console.log('Access Token:', accessToken);
 
     // Refresh Token
 
@@ -92,7 +92,7 @@ export class AuthService {
     };
     // Example usage
     const refreshToken = generateRefreshToken(sessionId);
-    console.log('Refresh Token:', refreshToken);
+    // console.log('Refresh Token:', refreshToken);
 
     // const accessToken = jwt.sign({ userId: user._id, sessionId: session._id, audience: 'user' }, config.JWT.SECRET, {
     //   expiresIn: config.JWT.EXPIRES_IN,
