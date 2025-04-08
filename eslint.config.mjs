@@ -25,7 +25,7 @@ export default defineConfig([
       parser: tsParser,
       globals: globals.browser,
     },
-    plugins: { '@typescript-eslint': tseslint },
+    // plugins: { '@typescript-eslint': tseslint },
     extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended', 'plugin:prettier/recommended'],
     rules: {
       '@typescript-eslint/no-unused-vars': 'error',
