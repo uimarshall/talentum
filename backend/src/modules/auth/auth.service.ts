@@ -108,4 +108,53 @@ export class AuthService {
       mfaRequired: false, // Set to true if MFA is required
     };
   }
+
+  // Refresh Token
+
+  public async refreshToken(refreshToken: string) {
+    const { payload } = verifyJwtToken<RefreshTPayload>(refreshToken, {
+      secret: refreshTokenSignOptions.secret,
+    });
+
+    if (!payload) {
+      throw new UnauthorizedException('Invalid refresh token');
+    }
+
+    const session = await SessionModel.findById(payload.sessionId);
+    const now = Date.now();
+
+    if (!session) {
+      throw new UnauthorizedException('Session does not exist');
+    }
+
+    if (session.expiredAt.getTime() <= now) {
+      throw new UnauthorizedException('Session expired');
+    }
+
+    const sessionRequireRefresh = session.expiredAt.getTime() - now <= ONE_DAY_IN_MS;
+
+    if (sessionRequireRefresh) {
+      session.expiredAt = calculateExpirationDate(config.JWT.REFRESH_EXPIRES_IN);
+      await session.save();
+    }
+
+    const newRefreshToken = sessionRequireRefresh
+      ? signJwtToken(
+          {
+            sessionId: session._id,
+          },
+          refreshTokenSignOptions
+        )
+      : undefined;
+
+    const accessToken = signJwtToken({
+      userId: session.userId,
+      sessionId: session._id,
+    });
+
+    return {
+      accessToken,
+      newRefreshToken,
+    };
+  }
 }
