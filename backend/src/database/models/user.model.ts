@@ -7,7 +7,7 @@ interface UserPreferences {
   emailNotifications: boolean;
 }
 
-interface UserDocument extends Document {
+export interface UserDocument extends Document {
   name: string;
   email: string;
   password: string;

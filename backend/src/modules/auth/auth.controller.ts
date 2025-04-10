@@ -4,7 +4,12 @@ import { asyncErrorHandler } from '../../middlewares/asyncErrorHandler';
 import { AuthService } from './auth.service';
 import { HTTPSTATUS } from '../../config/http.config';
 import { loginSchema, registerSchema } from '../../shared/validators/auth.validator';
-import { setAuthenticationCookies } from '../../shared/utils/cookie';
+import {
+  getAccessTokenCookieOptions,
+  getRefreshTokenCookieOptions,
+  setAuthenticationCookies,
+} from '../../shared/utils/cookie';
+import { UnAuthorizedException } from '../../shared/utils/catchErrors';
 
 export class AuthController {
   private authService: AuthService;
@@ -50,5 +55,25 @@ export class AuthController {
         user,
         mfaRequired,
       });
+  });
+
+  // @desc Refresh token
+  // @route POST /api/auth/refresh-token
+  // @access Public
+  public refreshToken = asyncHandler(async (req: Request, res: Response): Promise<any> => {
+    const refreshToken = req.cookies.refreshToken as string | undefined;
+    if (!refreshToken) {
+      throw new UnAuthorizedException('User not authorized');
+    }
+
+    const { accessToken, newRefreshToken } = await this.authService.refreshToken(refreshToken);
+
+    if (newRefreshToken) {
+      res.cookie('refreshToken', newRefreshToken, getRefreshTokenCookieOptions());
+    }
+
+    return res.status(HTTPSTATUS.OK).cookie('accessToken', accessToken, getAccessTokenCookieOptions()).json({
+      message: 'Refresh access token successfully',
+    });
   });
 }

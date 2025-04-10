@@ -5,9 +5,16 @@ import VerificationCodeModel from '../../database/models/verification.model';
 import { ErrorCode } from '../../shared/enums/errorCode.enum';
 import { VerificationEnum } from '../../shared/enums/verificationCode.enum';
 import { ILogin, IRegister } from '../../shared/interface/auth.interface';
-import { BadGatewayException, BadRequestException, EmailAlreadyExistsException } from '../../shared/utils/catchErrors';
-import { fortyFiveMinutesFromNow } from '../../shared/utils/dateTime';
+import {
+  BadGatewayException,
+  BadRequestException,
+  EmailAlreadyExistsException,
+  UnAuthorizedException,
+} from '../../shared/utils/catchErrors';
+import { calculateExpirationDate, fortyFiveMinutesFromNow, ONE_DAY_IN_MS } from '../../shared/utils/dateTime';
 import { config } from '../../config/app.config';
+import SessionModel from '../../database/models/session.model';
+import { refreshTokenSignOptions, RefreshTPayload, signJwtToken, verifyJwtToken } from '../../shared/utils/jwt';
 
 export class AuthService {
   // Implement your auth service methods here
@@ -69,9 +76,13 @@ export class AuthService {
     };
 
     // Example usage
-    const userId = String(user._id);
-    const sessionId = String(session._id);
-    const accessToken = generateAccessToken(userId, sessionId);
+    // const userId = String(user._id);
+    // const sessionId = String(session._id);
+    // const accessToken = generateAccessToken(userId, sessionId);
+    const accessToken = signJwtToken({
+      userId: user._id,
+      sessionId: session._id,
+    });
 
     // console.log('Access Token:', accessToken);
 
@@ -85,27 +96,76 @@ export class AuthService {
 
       const secret = config.JWT.REFRESH_SECRET; // Replace with your actual secret
       const options = {
-        expiresIn: 1000 * 60 * 60 * 24 * 30, // 7 days, // Token expiration time in seconds (30 days)
+        expiresIn: 1000 * 60 * 60 * 24 * 30, // 30 days, // Token expiration time in seconds (30 days)
       };
 
       return jwt.sign(payload, secret, options);
     };
     // Example usage
-    const refreshToken = generateRefreshToken(sessionId);
+    // const refreshToken = generateRefreshToken(sessionId);
+    const refreshToken = signJwtToken(
+      {
+        sessionId: session._id,
+      },
+      refreshTokenSignOptions
+    );
+
     // console.log('Refresh Token:', refreshToken);
 
-    // const accessToken = jwt.sign({ userId: user._id, sessionId: session._id, audience: 'user' }, config.JWT.SECRET, {
-    //   expiresIn: config.JWT.EXPIRES_IN,
-    // });
-
-    // const refreshToken = jwt.sign({ sessionId: session._id, audience: ['user'] }, config.JWT.REFRESH_SECRET, {
-    //   expiresIn: config.JWT.REFRESH_TOKEN_EXPIRES_IN,
-    // });
     return {
       user,
       accessToken,
       refreshToken,
       mfaRequired: false, // Set to true if MFA is required
+    };
+  }
+
+  // Refresh Token
+
+  public async refreshToken(refreshToken: string) {
+    const { payload } = verifyJwtToken<RefreshTPayload>(refreshToken, {
+      secret: refreshTokenSignOptions.secret,
+    });
+
+    if (!payload) {
+      throw new UnAuthorizedException('Invalid refresh token');
+    }
+
+    const session = await SessionModel.findById(payload.sessionId);
+    const now = Date.now();
+
+    if (!session) {
+      throw new UnAuthorizedException('Session does not exist');
+    }
+
+    if (session.expiredAt.getTime() <= now) {
+      throw new UnAuthorizedException('Session expired');
+    }
+
+    const sessionRequireRefresh = session.expiredAt.getTime() - now <= ONE_DAY_IN_MS;
+
+    if (sessionRequireRefresh) {
+      session.expiredAt = calculateExpirationDate(config.JWT.REFRESH_TOKEN_EXPIRES_IN);
+      await session.save();
+    }
+
+    const newRefreshToken = sessionRequireRefresh
+      ? signJwtToken(
+          {
+            sessionId: session._id,
+          },
+          refreshTokenSignOptions
+        )
+      : undefined;
+
+    const accessToken = signJwtToken({
+      userId: session.userId,
+      sessionId: session._id,
+    });
+
+    return {
+      accessToken,
+      newRefreshToken,
     };
   }
 }
