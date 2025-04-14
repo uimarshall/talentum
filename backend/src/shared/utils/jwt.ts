@@ -22,12 +22,12 @@ const defaults: SignOptions = {
 
 export const accessTokenSignOptions: SignOptsAndSecret = {
   expiresIn: parseInt(config.JWT.EXPIRES_IN, 10),
-  secret: config.JWT.SECRET,
+  secret: process.env.JWT_SECRET || 'default-secret',
 };
 
 export const refreshTokenSignOptions: SignOptsAndSecret = {
   expiresIn: parseInt(config.JWT.REFRESH_TOKEN_EXPIRES_IN, 10),
-  secret: config.JWT.REFRESH_SECRET,
+  secret: process.env.JWT_REFRESH_SECRET || 'default-refresh-secret',
 };
 
 export const signJwtToken = (payload: AccessTPayload | RefreshTPayload, options?: SignOptsAndSecret) => {
@@ -43,11 +43,14 @@ export const verifyJwtToken = <TPayload extends object = AccessTPayload>(
   options?: VerifyOptions & { secret: string }
 ) => {
   try {
-    const { secret = config.JWT.SECRET, ...opts } = options || {};
+    const { secret = process.env.JWT_SECRET, ...opts } = options || {};
+    if (!secret) {
+      throw new Error('JWT secret is not defined');
+    }
     const payload = jwt.verify(token, secret, {
       ...defaults,
       ...opts,
-    }) as TPayload;
+    }) as unknown as TPayload;
     return { payload };
   } catch (err: any) {
     return {

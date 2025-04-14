@@ -15,6 +15,8 @@ import { calculateExpirationDate, fortyFiveMinutesFromNow, ONE_DAY_IN_MS } from 
 import { config } from '../../config/app.config';
 import SessionModel from '../../database/models/session.model';
 import { refreshTokenSignOptions, RefreshTPayload, signJwtToken, verifyJwtToken } from '../../shared/utils/jwt';
+import { sendEmail } from '../../mailers/mailer';
+import { verifyEmailTemplate } from '../../mailers/template';
 
 export class AuthService {
   // Implement your auth service methods here
@@ -28,12 +30,17 @@ export class AuthService {
     const newUser = await UserModel.create({ name, email, password });
     const userId = newUser._id;
     // Create a verification for the user
-    const verificationCode = await VerificationCodeModel.create({
+    const verification = await VerificationCodeModel.create({
       userId,
       type: VerificationEnum.EMAIL_VERIFICATION,
       expiresAt: fortyFiveMinutesFromNow(),
     });
     // Send verification email to the user with the code
+    const verificationUrl = `${config.DOMAIN}/confirm-account?code=${verification.code}`;
+    await sendEmail({
+      to: newUser.email,
+      ...verifyEmailTemplate(verificationUrl),
+    });
     return {
       user: newUser,
     };
@@ -67,12 +74,15 @@ export class AuthService {
         audience: ['user'], // Add any custom claims here
       };
 
-      const secret = config.JWT.SECRET; // Replace with your actual secret
+      const secret = process.env.JWT_SECRET;
+      if (!secret) {
+        throw new Error('JWT secret is not defined');
+      }
       const options = {
         expiresIn: 3600, // Token expiration time in seconds (1 hour)
       };
 
-      return jwt.sign(payload, secret, options);
+      return jwt.sign(payload, secret as jwt.Secret, options);
     };
 
     // Example usage
@@ -94,7 +104,10 @@ export class AuthService {
         audience: ['user'], // Add any custom claims here
       };
 
-      const secret = config.JWT.REFRESH_SECRET; // Replace with your actual secret
+      const secret = process.env.JWT_REFRESH_SECRET;
+      if (!secret) {
+        throw new Error('JWT refresh secret is not defined');
+      }
       const options = {
         expiresIn: 1000 * 60 * 60 * 24 * 30, // 30 days, // Token expiration time in seconds (30 days)
       };
