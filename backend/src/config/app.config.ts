@@ -9,10 +9,12 @@ const appConfig = () => ({
   MONGO_URI: getEnv('MONGO_URI', 'mongodb://localhost:27017/talentum'),
   MONGO_URI_LOCAL: getEnv('MONGO_URI_LOCAL', 'mongodb://localhost:27017/talentum'),
   JWT: {
-    SECRET: getEnv('JWT_SECRET', 'secret'),
+    // SECRET: getEnv('JWT_SECRET'),
     EXPIRES_IN: getEnv('JWT_EXPIRES_IN', '15m'),
-    REFRESH_SECRET: getEnv('JWT_REFRESH_SECRET', 'refresh-secret'),
+    // REFRESH_SECRET: getEnv('JWT_REFRESH_SECRET'),
     REFRESH_TOKEN_EXPIRES_IN: getEnv('JWT_REFRESH_EXPIRES_IN', '30d'),
+    // RESEND_API_KEY: getEnv('RESEND_API_KEY'),
+    // EMAIL_SENDER: getEnv('EMAIL_SENDER'),
   },
 });
 
