@@ -1,5 +1,11 @@
 import { z } from 'zod';
 
+export const emailSchema = z
+  .string()
+  .trim()
+  .min(1, { message: 'Email must not be empty' })
+  .max(25, { message: 'Email must not exceed 25 characters' })
+  .email({ message: 'Invalid email address' });
 export const passwordSchema = z
   .string()
   .trim()

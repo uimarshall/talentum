@@ -9,14 +9,22 @@ import {
   BadGatewayException,
   BadRequestException,
   EmailAlreadyExistsException,
+  HttpException,
+  NotFoundException,
   UnAuthorizedException,
 } from '../../shared/utils/catchErrors';
-import { calculateExpirationDate, fortyFiveMinutesFromNow, ONE_DAY_IN_MS } from '../../shared/utils/dateTime';
+import {
+  calculateExpirationDate,
+  fortyFiveMinutesFromNow,
+  ONE_DAY_IN_MS,
+  threeMinutesAgo,
+} from '../../shared/utils/dateTime';
 import { config } from '../../config/app.config';
 import SessionModel from '../../database/models/session.model';
 import { refreshTokenSignOptions, RefreshTPayload, signJwtToken, verifyJwtToken } from '../../shared/utils/jwt';
 import { sendEmail } from '../../mailers/mailer';
 import { verifyEmailTemplate } from '../../mailers/template';
+import { HTTPSTATUS } from '../../config/http.config';
 
 export class AuthService {
   // Implement your auth service methods here
@@ -211,5 +219,34 @@ export class AuthService {
     return {
       user: updatedUser,
     };
+  }
+
+  // Forgot password service
+  public async forgotPassword(email: string) {
+    const user = await UserModel.findOne({
+      email: email,
+    });
+
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    //check mail rate limit is 2 emails per 3 or 10 min
+    const timeAgo = threeMinutesAgo();
+    const maxAttempts = 2;
+
+    const count = await VerificationCodeModel.countDocuments({
+      userId: user._id,
+      type: VerificationEnum.PASSWORD_RESET,
+      createdAt: { $gt: timeAgo },
+    });
+
+    if (count >= maxAttempts) {
+      throw new HttpException(
+        'Too many request, try again later',
+        HTTPSTATUS.TOO_MANY_REQUESTS,
+        ErrorCode.AUTH_TOO_MANY_ATTEMPTS
+      );
+    }
   }
 }
