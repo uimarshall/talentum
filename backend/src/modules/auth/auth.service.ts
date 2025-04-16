@@ -10,10 +10,12 @@ import {
   BadRequestException,
   EmailAlreadyExistsException,
   HttpException,
+  InternalServerErrorException,
   NotFoundException,
   UnAuthorizedException,
 } from '../../shared/utils/catchErrors';
 import {
+  anHourFromNow,
   calculateExpirationDate,
   fortyFiveMinutesFromNow,
   ONE_DAY_IN_MS,
@@ -23,7 +25,7 @@ import { config } from '../../config/app.config';
 import SessionModel from '../../database/models/session.model';
 import { refreshTokenSignOptions, RefreshTPayload, signJwtToken, verifyJwtToken } from '../../shared/utils/jwt';
 import { sendEmail } from '../../mailers/mailer';
-import { verifyEmailTemplate } from '../../mailers/template';
+import { passwordResetTemplate, verifyEmailTemplate } from '../../mailers/template';
 import { HTTPSTATUS } from '../../config/http.config';
 
 export class AuthService {
@@ -248,5 +250,27 @@ export class AuthService {
         ErrorCode.AUTH_TOO_MANY_ATTEMPTS
       );
     }
+    const expiresAt = anHourFromNow();
+    const validCode = await VerificationCodeModel.create({
+      userId: user._id,
+      type: VerificationEnum.PASSWORD_RESET,
+      expiresAt,
+    });
+
+    const resetLink = `${config.DOMAIN}/reset-password?code=${validCode.code}&exp=${expiresAt.getTime()}`;
+
+    const { data, error } = await sendEmail({
+      to: user.email,
+      ...passwordResetTemplate(resetLink),
+    });
+
+    if (!data?.id) {
+      throw new InternalServerErrorException(`${error?.name} ${error?.message}`);
+    }
+
+    return {
+      url: resetLink,
+      emailId: data.id,
+    };
   }
 }
