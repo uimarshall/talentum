@@ -3,7 +3,12 @@ import asyncHandler from 'express-async-handler';
 import { asyncErrorHandler } from '../../middlewares/asyncErrorHandler';
 import { AuthService } from './auth.service';
 import { HTTPSTATUS } from '../../config/http.config';
-import { loginSchema, registerSchema, verificationEmailSchema } from '../../shared/validators/auth.validator';
+import {
+  emailSchema,
+  loginSchema,
+  registerSchema,
+  verificationEmailSchema,
+} from '../../shared/validators/auth.validator';
 import {
   getAccessTokenCookieOptions,
   getRefreshTokenCookieOptions,
@@ -87,6 +92,20 @@ export class AuthController {
 
     return res.status(HTTPSTATUS.OK).json({
       message: 'Email verified successfully',
+    });
+  });
+
+  // Forgot password
+
+  // @desc Forgot password
+  // @route POST /api/auth/forgot-password
+  // @access Public
+  public forgotPassword = asyncHandler(async (req: Request, res: Response): Promise<any> => {
+    const email = emailSchema.parse(req.body.email);
+    await this.authService.forgotPassword(email);
+
+    return res.status(HTTPSTATUS.OK).json({
+      message: 'Password reset email sent',
     });
   });
 }
